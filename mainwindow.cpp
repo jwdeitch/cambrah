@@ -49,7 +49,9 @@
 ****************************************************************************/
 
 #include <QtWidgets>
-
+#include <QCamera>
+#include <QCameraImageCapture>
+#include <QMediaRecorder>
 #include "mainwindow.h"
 #include "mdichild.h"
 
@@ -67,7 +69,6 @@ MainWindow::MainWindow()
     updateMenus();
 
     readSettings();
-
     setWindowTitle(tr("MDI"));
     setUnifiedTitleAndToolBarOnMac(true);
 }
