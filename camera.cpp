@@ -116,8 +116,6 @@ void Camera::setCamera(const QCameraInfo &cameraInfo)
 
 
     camera->setViewfinder(ui->viewfinder);
-
-    updateCameraState(camera->state());
     updateLockStatus(camera->lockStatus(), QCamera::UserRequest);
     updateRecorderState(mediaRecorder->state());
 
@@ -305,12 +303,7 @@ void Camera::stopCamera()
 
 void Camera::updateCaptureMode()
 {
-
-}
-
-void Camera::updateCameraState(QCamera::State state)
-{
-
+    camera->setCaptureMode(QCamera::CaptureVideo);
 }
 
 void Camera::updateRecorderState(QMediaRecorder::State state)
