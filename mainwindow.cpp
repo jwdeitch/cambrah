@@ -50,7 +50,7 @@
 
 #include <QtWidgets>
 #include <QCamera>
-
+#include "camera.h"
 #include <QCameraImageCapture>
 #include <QMediaRecorder>
 #include "mainwindow.h"
@@ -59,7 +59,7 @@
 MainWindow::MainWindow()
     : mdiArea(new QMdiArea)
 {
-    qDebug() << "Hello1";
+
     mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setCentralWidget(mdiArea);
@@ -87,8 +87,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::newFile()
 {
-    MdiChild *child = createMdiChild();
-    child->newFile();
+    Camera *child = createMdiChild();
     child->show();
 }
 
@@ -161,9 +160,9 @@ void MainWindow::updateWindowMenu()
     }
 }
 
-MdiChild *MainWindow::createMdiChild()
+Camera *MainWindow::createMdiChild()
 {
-    MdiChild *child = new MdiChild;
+    Camera *child = new Camera;
     mdiArea->addSubWindow(child);
 
     return child;

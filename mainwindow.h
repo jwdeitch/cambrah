@@ -54,6 +54,7 @@
 #include <QMainWindow>
 
 class MdiChild;
+class Camera;
 class QAction;
 class QMenu;
 class QMdiArea;
@@ -74,7 +75,7 @@ private slots:
     void about();
     void updateMenus();
     void updateWindowMenu();
-    MdiChild *createMdiChild();
+    Camera *createMdiChild();
     void switchLayoutDirection();
 
 private:
