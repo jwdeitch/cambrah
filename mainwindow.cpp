@@ -50,6 +50,7 @@
 
 #include <QtWidgets>
 #include <QCamera>
+
 #include <QCameraImageCapture>
 #include <QMediaRecorder>
 #include "mainwindow.h"
@@ -58,6 +59,7 @@
 MainWindow::MainWindow()
     : mdiArea(new QMdiArea)
 {
+    qDebug() << "Hello1";
     mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setCentralWidget(mdiArea);
@@ -68,7 +70,6 @@ MainWindow::MainWindow()
     createStatusBar();
     updateMenus();
 
-    readSettings();
     setWindowTitle(tr("MDI"));
     setUnifiedTitleAndToolBarOnMac(true);
 }
@@ -91,149 +92,6 @@ void MainWindow::newFile()
     child->show();
 }
 
-void MainWindow::open()
-{
-    const QString fileName = QFileDialog::getOpenFileName(this);
-    if (!fileName.isEmpty())
-        openFile(fileName);
-}
-
-bool MainWindow::openFile(const QString &fileName)
-{
-    if (QMdiSubWindow *existing = findMdiChild(fileName)) {
-        mdiArea->setActiveSubWindow(existing);
-        return true;
-    }
-    const bool succeeded = loadFile(fileName);
-    if (succeeded)
-        statusBar()->showMessage(tr("File loaded"), 2000);
-    return succeeded;
-}
-
-bool MainWindow::loadFile(const QString &fileName)
-{
-    MdiChild *child = createMdiChild();
-    const bool succeeded = child->loadFile(fileName);
-    if (succeeded)
-        child->show();
-    else
-        child->close();
-    MainWindow::prependToRecentFiles(fileName);
-    return succeeded;
-}
-
-static inline QString recentFilesKey() { return QStringLiteral("recentFileList"); }
-static inline QString fileKey() { return QStringLiteral("file"); }
-
-static QStringList readRecentFiles(QSettings &settings)
-{
-    QStringList result;
-    const int count = settings.beginReadArray(recentFilesKey());
-    for (int i = 0; i < count; ++i) {
-        settings.setArrayIndex(i);
-        result.append(settings.value(fileKey()).toString());
-    }
-    settings.endArray();
-    return result;
-}
-
-static void writeRecentFiles(const QStringList &files, QSettings &settings)
-{
-    const int count = files.size();
-    settings.beginWriteArray(recentFilesKey());
-    for (int i = 0; i < count; ++i) {
-        settings.setArrayIndex(i);
-        settings.setValue(fileKey(), files.at(i));
-    }
-    settings.endArray();
-}
-
-bool MainWindow::hasRecentFiles()
-{
-    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
-    const int count = settings.beginReadArray(recentFilesKey());
-    settings.endArray();
-    return count > 0;
-}
-
-void MainWindow::prependToRecentFiles(const QString &fileName)
-{
-    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
-
-    const QStringList oldRecentFiles = readRecentFiles(settings);
-    QStringList recentFiles = oldRecentFiles;
-    recentFiles.removeAll(fileName);
-    recentFiles.prepend(fileName);
-    if (oldRecentFiles != recentFiles)
-        writeRecentFiles(recentFiles, settings);
-
-    setRecentFilesVisible(!recentFiles.isEmpty());
-}
-
-void MainWindow::setRecentFilesVisible(bool visible)
-{
-    recentFileSubMenuAct->setVisible(visible);
-    recentFileSeparator->setVisible(visible);
-}
-
-void MainWindow::updateRecentFileActions()
-{
-    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
-
-    const QStringList recentFiles = readRecentFiles(settings);
-    const int count = qMin(int(MaxRecentFiles), recentFiles.size());
-    int i = 0;
-    for ( ; i < count; ++i) {
-        const QString fileName = QFileInfo(recentFiles.at(i)).fileName();
-        recentFileActs[i]->setText(tr("&%1 %2").arg(i + 1).arg(fileName));
-        recentFileActs[i]->setData(recentFiles.at(i));
-        recentFileActs[i]->setVisible(true);
-    }
-    for ( ; i < MaxRecentFiles; ++i)
-        recentFileActs[i]->setVisible(false);
-}
-
-void MainWindow::openRecentFile()
-{
-    if (const QAction *action = qobject_cast<const QAction *>(sender()))
-        openFile(action->data().toString());
-}
-
-void MainWindow::save()
-{
-    if (activeMdiChild() && activeMdiChild()->save())
-        statusBar()->showMessage(tr("File saved"), 2000);
-}
-
-void MainWindow::saveAs()
-{
-    MdiChild *child = activeMdiChild();
-    if (child && child->saveAs()) {
-        statusBar()->showMessage(tr("File saved"), 2000);
-        MainWindow::prependToRecentFiles(child->currentFile());
-    }
-}
-
-#ifndef QT_NO_CLIPBOARD
-void MainWindow::cut()
-{
-    if (activeMdiChild())
-        activeMdiChild()->cut();
-}
-
-void MainWindow::copy()
-{
-    if (activeMdiChild())
-        activeMdiChild()->copy();
-}
-
-void MainWindow::paste()
-{
-    if (activeMdiChild())
-        activeMdiChild()->paste();
-}
-#endif
-
 void MainWindow::about()
 {
    QMessageBox::about(this, tr("About MDI"),
@@ -243,12 +101,8 @@ void MainWindow::about()
 
 void MainWindow::updateMenus()
 {
+
     bool hasMdiChild = (activeMdiChild() != 0);
-    saveAct->setEnabled(hasMdiChild);
-    saveAsAct->setEnabled(hasMdiChild);
-#ifndef QT_NO_CLIPBOARD
-    pasteAct->setEnabled(hasMdiChild);
-#endif
     closeAct->setEnabled(hasMdiChild);
     closeAllAct->setEnabled(hasMdiChild);
     tileAct->setEnabled(hasMdiChild);
@@ -260,8 +114,6 @@ void MainWindow::updateMenus()
 #ifndef QT_NO_CLIPBOARD
     bool hasSelection = (activeMdiChild() &&
                          activeMdiChild()->textCursor().hasSelection());
-    cutAct->setEnabled(hasSelection);
-    copyAct->setEnabled(hasSelection);
 #endif
 }
 
@@ -314,11 +166,6 @@ MdiChild *MainWindow::createMdiChild()
     MdiChild *child = new MdiChild;
     mdiArea->addSubWindow(child);
 
-#ifndef QT_NO_CLIPBOARD
-    connect(child, &QTextEdit::copyAvailable, cutAct, &QAction::setEnabled);
-    connect(child, &QTextEdit::copyAvailable, copyAct, &QAction::setEnabled);
-#endif
-
     return child;
 }
 
@@ -335,46 +182,9 @@ void MainWindow::createActions()
     fileMenu->addAction(newAct);
     fileToolBar->addAction(newAct);
 
-    const QIcon openIcon = QIcon::fromTheme("document-open", QIcon(":/images/open.png"));
-    QAction *openAct = new QAction(openIcon, tr("&Open..."), this);
-    openAct->setShortcuts(QKeySequence::Open);
-    openAct->setStatusTip(tr("Open an existing file"));
-    connect(openAct, &QAction::triggered, this, &MainWindow::open);
-    fileMenu->addAction(openAct);
-    fileToolBar->addAction(openAct);
-
-    const QIcon saveIcon = QIcon::fromTheme("document-save", QIcon(":/images/save.png"));
-    saveAct = new QAction(saveIcon, tr("&Save"), this);
-    saveAct->setShortcuts(QKeySequence::Save);
-    saveAct->setStatusTip(tr("Save the document to disk"));
-    connect(saveAct, &QAction::triggered, this, &MainWindow::save);
-    fileToolBar->addAction(saveAct);
-
-    const QIcon saveAsIcon = QIcon::fromTheme("document-save-as");
-    saveAsAct = new QAction(saveAsIcon, tr("Save &As..."), this);
-    saveAsAct->setShortcuts(QKeySequence::SaveAs);
-    saveAsAct->setStatusTip(tr("Save the document under a new name"));
-    connect(saveAsAct, &QAction::triggered, this, &MainWindow::saveAs);
-    fileMenu->addAction(saveAsAct);
 
     fileMenu->addSeparator();
 
-    QMenu *recentMenu = fileMenu->addMenu(tr("Recent..."));
-    connect(recentMenu, &QMenu::aboutToShow, this, &MainWindow::updateRecentFileActions);
-    recentFileSubMenuAct = recentMenu->menuAction();
-
-    for (int i = 0; i < MaxRecentFiles; ++i) {
-        recentFileActs[i] = recentMenu->addAction(QString(), this, &MainWindow::openRecentFile);
-        recentFileActs[i]->setVisible(false);
-    }
-
-    recentFileSeparator = fileMenu->addSeparator();
-
-    setRecentFilesVisible(MainWindow::hasRecentFiles());
-
-    fileMenu->addAction(tr("Switch layout direction"), this, &MainWindow::switchLayoutDirection);
-
-    fileMenu->addSeparator();
 
     const QIcon exitIcon = QIcon::fromTheme("application-exit");
     QAction *exitAct = fileMenu->addAction(exitIcon, tr("E&xit"), qApp, &QApplication::closeAllWindows);
@@ -382,37 +192,6 @@ void MainWindow::createActions()
     exitAct->setStatusTip(tr("Exit the application"));
     fileMenu->addAction(exitAct);
 
-#ifndef QT_NO_CLIPBOARD
-    QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
-    QToolBar *editToolBar = addToolBar(tr("Edit"));
-
-    const QIcon cutIcon = QIcon::fromTheme("edit-cut", QIcon(":/images/cut.png"));
-    cutAct = new QAction(cutIcon, tr("Cu&t"), this);
-    cutAct->setShortcuts(QKeySequence::Cut);
-    cutAct->setStatusTip(tr("Cut the current selection's contents to the "
-                            "clipboard"));
-    connect(cutAct, &QAction::triggered, this, &MainWindow::cut);
-    editMenu->addAction(cutAct);
-    editToolBar->addAction(cutAct);
-
-    const QIcon copyIcon = QIcon::fromTheme("edit-copy", QIcon(":/images/copy.png"));
-    copyAct = new QAction(copyIcon, tr("&Copy"), this);
-    copyAct->setShortcuts(QKeySequence::Copy);
-    copyAct->setStatusTip(tr("Copy the current selection's contents to the "
-                             "clipboard"));
-    connect(copyAct, &QAction::triggered, this, &MainWindow::copy);
-    editMenu->addAction(copyAct);
-    editToolBar->addAction(copyAct);
-
-    const QIcon pasteIcon = QIcon::fromTheme("edit-paste", QIcon(":/images/paste.png"));
-    pasteAct = new QAction(pasteIcon, tr("&Paste"), this);
-    pasteAct->setShortcuts(QKeySequence::Paste);
-    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
-                              "selection"));
-    connect(pasteAct, &QAction::triggered, this, &MainWindow::paste);
-    editMenu->addAction(pasteAct);
-    editToolBar->addAction(pasteAct);
-#endif
 
     windowMenu = menuBar()->addMenu(tr("&Window"));
     connect(windowMenu, &QMenu::aboutToShow, this, &MainWindow::updateWindowMenu);

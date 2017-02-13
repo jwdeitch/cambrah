@@ -66,23 +66,11 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
 
-    bool openFile(const QString &fileName);
-
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
     void newFile();
-    void open();
-    void save();
-    void saveAs();
-    void updateRecentFileActions();
-    void openRecentFile();
-#ifndef QT_NO_CLIPBOARD
-    void cut();
-    void copy();
-    void paste();
-#endif
     void about();
     void updateMenus();
     void updateWindowMenu();
@@ -107,16 +95,7 @@ private:
 
     QMenu *windowMenu;
     QAction *newAct;
-    QAction *saveAct;
-    QAction *saveAsAct;
-    QAction *recentFileActs[MaxRecentFiles];
-    QAction *recentFileSeparator;
-    QAction *recentFileSubMenuAct;
-#ifndef QT_NO_CLIPBOARD
-    QAction *cutAct;
-    QAction *copyAct;
-    QAction *pasteAct;
-#endif
+
     QAction *closeAct;
     QAction *closeAllAct;
     QAction *tileAct;

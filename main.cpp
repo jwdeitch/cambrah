@@ -70,8 +70,7 @@ int main(int argc, char *argv[])
     parser.process(app);
 
     MainWindow mainWin;
-    foreach (const QString &fileName, parser.positionalArguments())
-        mainWin.openFile(fileName);
+
     mainWin.show();
     return app.exec();
 }
