@@ -38,10 +38,10 @@
 **
 ****************************************************************************/
 
-#include "camera.h"
+#include "headers/camera.h"
 #include "ui_camera.h"
-#include "videosettings.h"
-#include "imagesettings.h"
+#include "headers/videosettings.h"
+#include "headers/imagesettings.h"
 
 #include <QMediaService>
 #include <QMediaRecorder>
@@ -176,7 +176,7 @@ void Camera::keyReleaseEvent(QKeyEvent *event)
 void Camera::updateRecordTime()
 {
     videoCaptureElapseTimeInMs = mediaRecorder->duration();
-    QString str = QString("Recorded %1 sec").arg(videoCaptureElapseTime/1000);
+    QString str = QString("Recorded %1 sec").arg(videoCaptureElapseTimeInMs/1000);
     ui->statusbar->showMessage(str);
 }
 

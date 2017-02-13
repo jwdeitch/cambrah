@@ -1,22 +1,22 @@
 QT += widgets multimedia multimediawidgets
 
-HEADERS       = mainwindow.h \
-                mdichild.h \
-                camera.h \
-                imagesettings.h \
-                videosettings.h
+HEADERS       = headers/mainwindow.h \
+                headers/mdichild.h \
+                headers/camera.h \
+                headers/imagesettings.h \
+                headers/videosettings.h
 
-SOURCES       = main.cpp \
-                mainwindow.cpp \
-                mdichild.cpp \
-                camera.cpp \
-                imagesettings.cpp \
-                videosettings.cpp
+SOURCES       = source/main.cpp \
+                source/mainwindow.cpp \
+                source/mdichild.cpp \
+                source/camera.cpp \
+                source/imagesettings.cpp \
+                source/videosettings.cpp
 
 FORMS += \
-    camera.ui \
-    videosettings.ui \
-    imagesettings.ui
+    ui/camera.ui \
+    ui/videosettings.ui \
+    ui/imagesettings.ui
 
 RESOURCES     = mdi.qrc
 
