@@ -175,7 +175,8 @@ void Camera::keyReleaseEvent(QKeyEvent *event)
 
 void Camera::updateRecordTime()
 {
-    QString str = QString("Recorded %1 sec").arg(mediaRecorder->duration()/1000);
+    videoCaptureElapseTimeInMs = mediaRecorder->duration();
+    QString str = QString("Recorded %1 sec").arg(videoCaptureElapseTime/1000);
     ui->statusbar->showMessage(str);
 }
 
@@ -241,6 +242,11 @@ void Camera::configureImageSettings()
 
 void Camera::record()
 {
+    QString file = "/tmp/recor2d.mp4";
+    mediaRecorder->setVideoSettings(videoSettings);
+    mediaRecorder->setContainerFormat("mp4");
+    mediaRecorder->setOutputLocation(QUrl::fromLocalFile(file));
+
     mediaRecorder->record();
     updateRecordTime();
 }

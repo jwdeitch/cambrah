@@ -114,6 +114,9 @@ private:
     QAudioEncoderSettings audioSettings;
     QVideoEncoderSettings videoSettings;
     QString videoContainerFormat;
+
+    unsigned int videoCaptureElapseTimeInMs = 0;
+
     bool isCapturingImage;
     bool applicationExiting;
 };
