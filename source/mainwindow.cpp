@@ -50,11 +50,12 @@
 
 #include <QtWidgets>
 #include <QCamera>
-#include "camera.h"
+#include "../headers/camera.h"
 #include <QCameraImageCapture>
 #include <QMediaRecorder>
-#include "mainwindow.h"
-#include "mdichild.h"
+#include "../headers/mainwindow.h"
+#include "../headers/mdichild.h"
+#include "sourceselect.h"
 
 MainWindow::MainWindow()
     : mdiArea(new QMdiArea)
@@ -164,7 +165,8 @@ Camera *MainWindow::createMdiChild()
 {
     Camera *child = new Camera;
     mdiArea->addSubWindow(child);
-
+    SourceSelect *s = new SourceSelect;
+    s->show();
     return child;
 }
 
