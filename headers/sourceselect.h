@@ -22,6 +22,10 @@ public:
 private slots:
     void on_sourceList_itemClicked(QListWidgetItem *item);
 
+    void on_refreshButton_clicked();
+
+    void on_addButton_clicked();
+
 private:
     Ui::SourceSelect *ui;
     QList<QCameraInfo> cameras;

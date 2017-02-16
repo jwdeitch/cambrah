@@ -3,6 +3,8 @@
 #include <QCameraInfo>
 #include <QMessageBox>
 
+using namespace cv;
+
 SourceSelect::SourceSelect(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SourceSelect)
@@ -40,6 +42,7 @@ void SourceSelect::on_sourceList_itemClicked(QListWidgetItem *item)
         }
     }
 
+
 }
 
 void SourceSelect::on_refreshButton_clicked()
@@ -50,4 +53,25 @@ void SourceSelect::on_refreshButton_clicked()
 void SourceSelect::on_addButton_clicked()
 {
 
+}
+
+Mat differenceFrame( Mat prev_frame, Mat curr_frame )
+{
+    Mat image = prev_frame.clone();
+    printf("frame rows %d Cols %d\n" , image.rows, image.cols);
+
+    for (int rows = 0; rows < image.rows; rows++)
+    {
+        for (int cols = 0; cols < image.cols; cols++)
+        {
+
+            image.at<cv::Vec3b>(rows,cols)[0] = abs(prev_frame.at<cv::Vec3b>(rows,cols)[0] -
+                                              curr_frame.at<cv::Vec3b>(rows,cols)[0]);
+            image.at<cv::Vec3b>(rows,cols)[1] = abs(prev_frame.at<cv::Vec3b>(rows,cols)[1] -
+                                              curr_frame.at<cv::Vec3b>(rows,cols)[1]);
+            image.at<cv::Vec3b>(rows,cols)[2] = abs(prev_frame.at<cv::Vec3b>(rows,cols)[2] -
+                                              curr_frame.at<cv::Vec3b>(rows,cols)[2]);
+        }
+    }
+    return image;
 }
