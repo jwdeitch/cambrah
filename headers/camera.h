@@ -125,6 +125,8 @@ private:
     bool applicationExiting;
 
     bool mouseDown = false;
+    int pressedX;
+    int pressedY;
 };
 
 #endif

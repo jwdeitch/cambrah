@@ -165,7 +165,7 @@ Camera *MainWindow::createMdiChild()
 {
     Camera *child = new Camera;
     mdiArea->addSubWindow(child, Qt::FramelessWindowHint);
-    child->parentWidget()->resize(900, 700);
+    child->parentWidget()->resize(400, 200);
     child->parentWidget()->updateGeometry();
 
     SourceSelect *s = new SourceSelect;

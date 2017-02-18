@@ -388,12 +388,14 @@ void Camera::closeEvent(QCloseEvent *event)
         applicationExiting = true;
         event->ignore();
     } else {
-        event->accept();
+            event->accept();
     }
 }
 
 void Camera::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
+        int pressedX = event->x();
+        int pressedY = event->y();
         mouseDown = true;
     }
 }
@@ -404,6 +406,7 @@ void Camera::mouseReleaseEvent(QMouseEvent *event) {
 
 void Camera::mouseMoveEvent(QMouseEvent *event) {
     if (mouseDown) {
-        move(mapToParent(event->pos()));
+        move(event->globalX()-pressedX,event->globalY()-pressedY);
+//        move(mapToParent(event->pos()));
     }
 }
