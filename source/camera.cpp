@@ -82,6 +82,9 @@ Camera::Camera(QWidget *parent) :
     }
 
     connect(videoDevicesGroup, SIGNAL(triggered(QAction*)), SLOT(updateCameraDevice(QAction*)));
+    setCentralWidget(ui->viewfinder);
+    ui->statusbar->setSizeGripEnabled(true);
+
 
     setCamera(QCameraInfo::defaultCamera());
 }
@@ -386,5 +389,21 @@ void Camera::closeEvent(QCloseEvent *event)
         event->ignore();
     } else {
         event->accept();
+    }
+}
+
+void Camera::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        mouseDown = true;
+    }
+}
+
+void Camera::mouseReleaseEvent(QMouseEvent *event) {
+        mouseDown = false;
+}
+
+void Camera::mouseMoveEvent(QMouseEvent *event) {
+    if (mouseDown) {
+        move(mapToParent(event->pos()));
     }
 }

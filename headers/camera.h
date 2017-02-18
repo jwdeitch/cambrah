@@ -103,6 +103,10 @@ protected:
     void keyReleaseEvent(QKeyEvent *event);
     void closeEvent(QCloseEvent *event);
 
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+
 private:
     Ui::Camera *ui;
 
@@ -119,6 +123,8 @@ private:
 
     bool isCapturingImage;
     bool applicationExiting;
+
+    bool mouseDown = false;
 };
 
 #endif
